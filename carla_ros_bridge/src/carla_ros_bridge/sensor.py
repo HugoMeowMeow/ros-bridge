@@ -206,10 +206,7 @@ class Sensor(Actor):
     def _update_synchronous_event_sensor(self, frame, timestamp):
         while True:
             try:
-                ts = time.time()
                 carla_sensor_data = self.queue.get(block=False)
-                if self.__class__.__name__ == "RgbCamera":
-                    print("Camera Queue FPS {}".format(1.0 / (time.time() - ts)))
                 if carla_sensor_data.frame != frame:
                     self.node.logwarn("{}({}): Received event for frame {}"
                                       " (expected {}). Process it anyways.".format(
@@ -230,7 +227,10 @@ class Sensor(Actor):
              self.next_data_expected_time < timestamp):
             while True:
                 try:
+                    ts = time.time()
                     carla_sensor_data = self.queue.get(timeout=1.0)
+                    if self.__class__.__name__ == "RgbCamera":
+                        print("Camera Queue FPS {}".format(1.0 / (time.time() - ts)))
                     if carla_sensor_data.frame == frame:
                         self.node.logdebug("{}({}): process {}".format(self.__class__.__name__,
                                                                        self.get_id(), frame))
